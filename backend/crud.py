@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 import models, schemas
 
 def get_videos(db: Session, skip: int = 0, limit: int = 10):
