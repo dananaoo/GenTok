@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=videos
+    volumes:
+      - ./backend:/app
+    restart: always
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    ports:
+      - "5433:5432"  # внешний порт 5433, внутренний остаётся 5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: videos
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  frontend:
+    build: ./frontend
+    container_name: vite_app
+    ports:
+      - "5173:5173"  # default Vite dev server port
+    volumes:
+      - ./frontend:/app
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
