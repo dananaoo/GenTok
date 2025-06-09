@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+.env
+venv/
+.env.*
+
+# Docker
+*.log
+*.pid
+*.seed
+*.bak
+*.swp
+*.swo
+*.tmp
+*.tar
+*.tar.gz
+*.gz
+*.img
+*.db
+*.lock
+*.sock
+*.pid
+*.pid.lock
+*.log.*
+
+# React / Node
+node_modules/
+dist/
+build/
+.vite/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# VSCode / OS / misc
+.DS_Store
+.idea/
+.vscode/
+*.swp
