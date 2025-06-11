@@ -1,16 +1,18 @@
 from fastapi import FastAPI, Depends, HTTPException, status
-
 from sqlalchemy.orm import Session
 import models, schemas, crud
 from database import SessionLocal, engine, Base
 from fastapi.middleware.cors import CORSMiddleware
+import os
+import redis
 
 # Создаём таблицы
 Base.metadata.create_all(bind=engine)
 
+# Инициализация FastAPI
 app = FastAPI()
 
-# Разрешаем CORS для локального фронта
+# Настройка CORS для фронтенда
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],  # для vite
@@ -19,7 +21,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Dependency для получения сессии БД
+# --- Redis инициализация ---
+redis_host = os.getenv("REDIS_HOST", "localhost")
+redis_port = int(os.getenv("REDIS_PORT", 6379))
+r = redis.Redis(host=redis_host, port=redis_port, db=0)
+
+# Пример: проверка соединения
+try:
+    r.set("startup_check", "OK")
+    print("✅ Redis connected:", r.get("startup_check"))
+except Exception as e:
+    print("❌ Redis connection failed:", e)
+
+# Dependency для БД
 def get_db():
     db = SessionLocal()
     try:
@@ -27,6 +41,7 @@ def get_db():
     finally:
         db.close()
 
+# CRUD endpoints
 @app.post("/videos/", response_model=schemas.Video)
 def create_video(video: schemas.VideoCreate, db: Session = Depends(get_db)):
     return crud.create_video(db=db, video=video)
@@ -50,6 +65,7 @@ def delete_video(video_id: int, db: Session = Depends(get_db)):
     db.delete(video)
     db.commit()
     return
+
 @app.put("/videos/{video_id}", response_model=schemas.Video)
 def update_video(video_id: int, updated_data: schemas.VideoCreate, db: Session = Depends(get_db)):
     video = crud.get_video(db, video_id)

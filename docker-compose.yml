@@ -8,12 +8,15 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis   # добавляем зависимость от Redis
     environment:
       - DB_HOST=db
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASS=postgres
       - DB_NAME=videos
+      - REDIS_HOST=redis   # новое!
+      - REDIS_PORT=6379    # новое!
     volumes:
       - ./backend:/app
     restart: always
@@ -22,7 +25,7 @@ services:
     image: postgres:15
     container_name: postgres_db
     ports:
-      - "5433:5432"  # внешний порт 5433, внутренний остаётся 5432
+      - "5433:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -30,11 +33,17 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  redis:
+    image: redis:alpine
+    container_name: redis_server
+    ports:
+      - "6379:6379"
+
   frontend:
     build: ./frontend
     container_name: vite_app
     ports:
-      - "5173:5173"  # default Vite dev server port
+      - "5173:5173"
     volumes:
       - ./frontend:/app
     working_dir: /app
