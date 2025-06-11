@@ -5,3 +5,4 @@ psycopg2-binary
 pydantic
 python-dotenv
 redis
+celery==5.3.6
