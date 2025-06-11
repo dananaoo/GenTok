@@ -5,6 +5,8 @@ from database import SessionLocal, engine, Base
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import redis
+from assistant.client import GeminiAssistant
+from dotenv import load_dotenv
 
 # Создаём таблицы
 Base.metadata.create_all(bind=engine)
@@ -20,6 +22,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+load_dotenv()
+
+assistant = GeminiAssistant()
+
+@app.post("/chat/")
+def chat(prompt: schemas.Prompt):
+    response = assistant.generate(prompt.message)
+    return {"response": response}
 
 # --- Redis инициализация ---
 redis_host = os.getenv("REDIS_HOST", "localhost")

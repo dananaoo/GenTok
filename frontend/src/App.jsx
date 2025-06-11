@@ -8,6 +8,10 @@ function App() {
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
 
+  // ✅ Переименовали prompt → aiPrompt
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [reply, setReply] = useState("");
+
   useEffect(() => {
     fetchVideos();
   }, []);
@@ -37,13 +41,33 @@ function App() {
   };
 
   const handleUpdate = async (video) => {
+    // ✅ Используем window.prompt
     const updated = {
-      title: prompt("Новое название:", video.title) || video.title,
-      description: prompt("Новое описание:", video.description) || video.description,
-      url: prompt("Новый URL:", video.url) || video.url,
+      title: window.prompt("Новое название:", video.title) || video.title,
+      description: window.prompt("Новое описание:", video.description) || video.description,
+      url: window.prompt("Новый URL:", video.url) || video.url,
     };
     await updateVideo(video.id, updated);
     fetchVideos();
+  };
+
+  const sendPrompt = async () => {
+    if (!aiPrompt.trim()) return;
+
+    try {
+      const res = await fetch("http://localhost:8000/chat/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: aiPrompt }),
+      });
+      const data = await res.json();
+      setReply(data.response);
+    } catch (error) {
+      console.error("Ошибка при отправке промпта:", error);
+      setReply("Произошла ошибка при запросе.");
+    }
   };
 
   return (
@@ -71,6 +95,23 @@ function App() {
             </div>
           </div>
         ))}
+      </div>
+
+      <h2 className="list-title">🤖 Gemini Assistant</h2>
+      <div className="assistant-block">
+        <textarea
+          className="input"
+          placeholder="Задай вопрос ИИ..."
+          value={aiPrompt}
+          onChange={(e) => setAiPrompt(e.target.value)}
+        />
+        <button className="add-btn" onClick={sendPrompt}>Отправить</button>
+        {reply && (
+          <div className="reply-box">
+            <strong>Ответ:</strong>
+            <p>{reply}</p>
+          </div>
+        )}
       </div>
     </>
   );

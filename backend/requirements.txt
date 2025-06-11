@@ -6,3 +6,5 @@ pydantic
 python-dotenv
 redis
 celery==5.3.6
+requests
+google-generativeai

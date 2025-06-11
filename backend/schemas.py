@@ -1,15 +1,18 @@
 from pydantic import BaseModel
 
-class VideoBase(BaseModel):
+# Для получения данных при создании/обновлении видео
+class VideoCreate(BaseModel):
     title: str
     description: str
     url: str
 
-class VideoCreate(VideoBase):
-    pass
-
-class Video(VideoBase):
+# Для ответа с ID
+class Video(VideoCreate):
     id: int
 
     class Config:
         orm_mode = True
+
+# Для Gemini
+class Prompt(BaseModel):
+    message: str
