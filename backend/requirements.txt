@@ -8,3 +8,5 @@ redis
 celery==5.3.6
 requests
 google-generativeai
+python-jose[cryptography]
+passlib[bcrypt]

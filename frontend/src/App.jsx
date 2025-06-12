@@ -1,16 +1,15 @@
 import './App.css'
 import React, { useEffect, useState } from "react";
 import { getVideos, createVideo, deleteVideo, updateVideo } from "./api";
+import Chatbot from './components/Chatbot';
+import './components/Chatbot.css';
 
 function App() {
   const [videos, setVideos] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
-
-  // ✅ Переименовали prompt → aiPrompt
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [reply, setReply] = useState("");
+  const [showChatbot, setShowChatbot] = useState(false);
 
   useEffect(() => {
     fetchVideos();
@@ -41,7 +40,6 @@ function App() {
   };
 
   const handleUpdate = async (video) => {
-    // ✅ Используем window.prompt
     const updated = {
       title: window.prompt("Новое название:", video.title) || video.title,
       description: window.prompt("Новое описание:", video.description) || video.description,
@@ -49,25 +47,6 @@ function App() {
     };
     await updateVideo(video.id, updated);
     fetchVideos();
-  };
-
-  const sendPrompt = async () => {
-    if (!aiPrompt.trim()) return;
-
-    try {
-      const res = await fetch("http://localhost:8000/chat/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: aiPrompt }),
-      });
-      const data = await res.json();
-      setReply(data.response);
-    } catch (error) {
-      console.error("Ошибка при отправке промпта:", error);
-      setReply("Произошла ошибка при запросе.");
-    }
   };
 
   return (
@@ -97,21 +76,14 @@ function App() {
         ))}
       </div>
 
-      <h2 className="list-title">🤖 Gemini Assistant</h2>
-      <div className="assistant-block">
-        <textarea
-          className="input"
-          placeholder="Задай вопрос ИИ..."
-          value={aiPrompt}
-          onChange={(e) => setAiPrompt(e.target.value)}
-        />
-        <button className="add-btn" onClick={sendPrompt}>Отправить</button>
-        {reply && (
-          <div className="reply-box">
-            <strong>Ответ:</strong>
-            <p>{reply}</p>
-          </div>
-        )}
+      <div className="chatbot-section">
+        <button 
+          className="chatbot-toggle" 
+          onClick={() => setShowChatbot(!showChatbot)}
+        >
+          {showChatbot ? '❌ Close Chat' : '💬 Open Chat'}
+        </button>
+        {showChatbot && <Chatbot />}
       </div>
     </>
   );

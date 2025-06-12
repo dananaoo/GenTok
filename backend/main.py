@@ -7,6 +7,7 @@ import os
 import redis
 from assistant.client import GeminiAssistant
 from dotenv import load_dotenv
+from chatbot.router import router as chatbot_router
 
 # Создаём таблицы
 Base.metadata.create_all(bind=engine)
@@ -22,6 +23,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include chatbot router
+app.include_router(chatbot_router)
 
 load_dotenv()
 
